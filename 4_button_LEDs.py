@@ -3,11 +3,24 @@ import os
 import time
 import RPi.GPIO as GPIO
 
-def led(colorgpio, status):
+def ledstatus(channel):
+   return 1==GPIO.input(channel)
+
+def led(channel, status):
    if (status):
-      GPIO.output(colorgpio, GPIO.HIGH)
+      GPIO.output(channel, GPIO.HIGH)
    else:
-      GPIO.output(colorgpio, GPIO.LOW)
+      GPIO.output(channel, GPIO.LOW)
+
+def ledswitch(channel):
+   outmsg = "Channel "+str(channel)+" currently switched "+str(ledstatus(channel))
+   outmsg = outmsg.replace('False', 'off').replace('True', 'on')
+   print outmsg
+   print "Switching its status..."
+   if ledstatus(channel):
+      GPIO.output(channel, GPIO.LOW)
+   else:
+      GPIO.output(channel, GPIO.HIGH)
 
 GPIO.setmode(GPIO.BCM)
 
@@ -19,6 +32,9 @@ GPIO.setwarnings(False)
 GPIO.setup(10, GPIO.IN)
 GPIO.setup(red,GPIO.OUT)
 GPIO.setup(blue,GPIO.OUT)
+
+# starting with blue being on:
+ledswitch(blue)
 
 print("------------------")
 print(" Button + GPIO ")
@@ -32,16 +48,13 @@ try:
          print("Button Pressed")
          os.system('date')
          print GPIO.input(10)
-         led(red, True)
-         led(blue, True)
-         time.sleep(sleeptime)
+         ledswitch(red)
+         ledswitch(blue)
       else:
          os.system('clear')
          print ("Waiting for you to press a button")
-         print GPIO.input(10)
-         led(red, False)
-         led(blue, False)
-         time.sleep(sleeptime)
+         #print GPIO.input(10)
+      time.sleep(sleeptime)
 except:
    led(red, False)
    led(blue, False)
